@@ -1,7 +1,10 @@
+import { extend } from "../shared"
 
 class ReactiveEffect {
   private _fn: any
   deps = []
+  active = true
+  onStop?: () => void
   constructor(fn, public scheduler?) {
 
     this._fn = fn
@@ -14,12 +17,27 @@ class ReactiveEffect {
   }
 
   stop() {
-    // 在dep中删除自身
-    this.deps.forEach((dep: any) => {
-      dep.delete(this)
-    })
+    // 防止重复清空
+    if (this.active) {
+      // 清空自身
+      cleanupEffect(this)
+      // 回调 onStop
+      if (this.onStop) {
+        this.onStop()
+      }
+      this.active = false
+    }
+
   }
 }
+
+function cleanupEffect(effect) {
+  // 在dep中删除自身
+  effect.deps.forEach((dep: any) => {
+    dep.delete(effect)
+  })
+}
+
 const targetMap = new Map()
 
 // 依赖收集函数 结构为 Map[Set]
@@ -65,9 +83,9 @@ export function trigger(target, key) {
 let activeEffect
 export function effect(fn, options: any = {}) {
   //  fn
-  const scheduler = options.scheduler
+  const _effect = new ReactiveEffect(fn, options.scheduler)
 
-  const _effect = new ReactiveEffect(fn, scheduler)
+  extend(_effect, options)
 
   _effect.run()
 
