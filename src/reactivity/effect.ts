@@ -59,6 +59,8 @@ export function track(target, key) {
     depsMap.set(key, dep)
   }
 
+  // 如果单纯只是定义了 reactive，并没有effect，则没有activeEffect
+  if (!activeEffect) return
   // 依赖收集(将依赖函数收集)
   dep.add(activeEffect)
   // dep的每一项自身存储dep集合地址
