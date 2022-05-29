@@ -1,4 +1,4 @@
-import { readonly } from "../reactive"
+import { isReadonly, readonly } from "../reactive"
 
 describe('readonly', () => {
   it('happy path', () => {
@@ -6,6 +6,7 @@ describe('readonly', () => {
     const original = { foo: 1, bar: { baz: 2 } }
     const warrped = readonly(original)
     expect(warrped).not.toBe(original)
+    expect(isReadonly(warrped)).toBe(true)
     expect(warrped.foo).toBe(1)
   })
 
