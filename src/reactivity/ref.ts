@@ -10,7 +10,7 @@ class RefImpl {
 
   constructor(value) {
     this._rawValue = value
-    this._value = isObject(value) ? reactive(value) : value
+    this._value = convert(value)
     // value -> reactive
     // 1.看看 value 是不是对象
 
@@ -31,11 +31,15 @@ class RefImpl {
     if (hasChanged(this._rawValue, newValue)) {
 
       this._rawValue = newValue
-      this._value = isObject(newValue) ? reactive(newValue) : newValue
+      this._value = convert(newValue)
       triggerEffects(this.dep)
     }
 
   }
+}
+
+function convert(value) {
+  return isObject(value) ? reactive(value) : value
 }
 
 
