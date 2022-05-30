@@ -1,13 +1,14 @@
-import { isObject } from '../shared'
+import { extend, isObject } from '../shared'
 import { track, trigger } from './effect'
 import { reactive, ReactiveFlags, readonly } from './reactive'
 
 const get = createGetter()
 const set = createSetter()
 const readonlyGet = createGetter(true)
+const shallowReadonlyGet = createGetter(true, true)
 
 // 抽离get,返回一个get函数
-function createGetter(isReadonly = false) {
+function createGetter(isReadonly = false, shallow = false) {
   return function get(target, key) {
 
     // 如果是 isReactive 来调用的 get 方法且非 readonly 则返回 true，如果是 readonly 则返回 false
@@ -17,8 +18,11 @@ function createGetter(isReadonly = false) {
       return isReadonly
     }
 
-
     const res = Reflect.get(target, key)
+
+    if (shallow) {
+      return res
+    }
 
     // 如果每一项是Obejct时，实现嵌套
     if (isObject(res)) {
@@ -30,6 +34,7 @@ function createGetter(isReadonly = false) {
       // 依赖收集
       track(target, key)
     }
+
 
     return res
   }
@@ -59,3 +64,7 @@ export const readonlyHandlers = {
     return true
   }
 }
+
+export const shallowReadonlyHandlers = extend({}, readonlyHandlers, {
+  get: shallowReadonlyGet
+})
