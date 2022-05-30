@@ -61,12 +61,7 @@ const targetMap = new Map()
 
 // 依赖收集函数 结构为 Map[Set]
 export function track(target, key) {
-
-  // 如果单纯只是定义了 reactive，并没有 effect，则没有 activeEffect
-  if (!activeEffect) return
-
-  // shouldTrack 默认是关闭状态,不收集依赖，只有初始化 effect 调用 run 方法时可能会收集，用于解决 stop 后触发响应式对象 get 方法时又收集依赖的问题
-  if (!shouldTrack) return
+  if (!isTracking()) return
 
   //  target -> key -> dep
   // 从所有响应式对象 Map 集合中获取当前对象
@@ -86,10 +81,21 @@ export function track(target, key) {
 
   // 依赖收集(将依赖函数收集) 
   // 在设置 effect 时会先执行 effect 函数，获得一个 activeEffect，他是一个依赖某个响应式对象的函数，然后该函数内部获取这个响应式对象的某一值时会触发该 track，将这个依赖函数存储进对应值的响应式对象的 key 的 Set 集合中，这就完成了依赖收集功能。
+  // 如果已经被收集了
+  if (dep.has(activeEffect)) return
   dep.add(activeEffect)
   // dep的每一项自身存储dep集合地址
   activeEffect.deps.push(dep)
 }
+
+function isTracking() {
+  // 如果单纯只是定义了 reactive，并没有 effect，则没有 activeEffect
+  // if (!activeEffect) return
+  // shouldTrack 默认是关闭状态,不收集依赖，只有初始化 effect 调用 run 方法时可能会收集，用于解决 stop 后触发响应式对象 get 方法时又收集依赖的问题
+  // if (!shouldTrack) return
+  return shouldTrack && activeEffect !== undefined
+}
+
 
 
 export function trigger(target, key) {
