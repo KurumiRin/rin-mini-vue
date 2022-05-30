@@ -7,6 +7,9 @@ describe('readonly', () => {
     const warrped = readonly(original)
     expect(warrped).not.toBe(original)
     expect(isReadonly(warrped)).toBe(true)
+    expect(isReadonly(original)).toBe(false)
+    expect(isReadonly(warrped.bar)).toBe(true)
+    expect(isReadonly(original.bar)).toBe(false)
     expect(warrped.foo).toBe(1)
   })
 
