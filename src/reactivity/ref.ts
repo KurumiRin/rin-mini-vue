@@ -72,7 +72,7 @@ export function proxyRefs(objectWithRefs) {
       // get -> 如果访问一个属性，他是 ref，那就给他返回 .value,
       // 如果不是 ref,则返回本身
       return unRef(Reflect.get(target, key))
-    }
+    },
     set(target, key, newValue) {
       // set -> 如果修改的是 ref,且不是修改为 ref，则赋值给他的 .value
       if (isRef(target[key]) && !isRef(newValue)) {
