@@ -7,13 +7,13 @@ class RefImpl {
   private _value: any
   public dep
   private _rawValue: any;
+  public __v_isRef = true
 
   constructor(value) {
     this._rawValue = value
-    this._value = convert(value)
-    // value -> reactive
-    // 1.看看 value 是不是对象
 
+    // 1.看看 value 是不是对象
+    this._value = convert(value)
 
     this.dep = new Set()
   }
@@ -39,6 +39,7 @@ class RefImpl {
 }
 
 function convert(value) {
+  // value -> reactive
   return isObject(value) ? reactive(value) : value
 }
 
@@ -53,4 +54,13 @@ function trackRefValue(ref) {
 
 export function ref(value) {
   return new RefImpl(value)
+}
+
+export function isRef(ref) {
+  return !!ref.__v_isRef
+}
+
+export function unRef(ref) {
+  // 如果是 ref 则返回 ref.value 否则返回本身
+  return isRef(ref) ? ref.value : ref
 }
