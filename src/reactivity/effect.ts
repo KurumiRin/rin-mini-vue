@@ -4,7 +4,7 @@ import { extend } from "../shared"
 let activeEffect
 let shouldTrack
 
-class ReactiveEffect {
+export class ReactiveEffect {
   private _fn: any
   deps = []
   // 该依赖函数Effect状态(是否被stop，默认是非stop)
@@ -129,6 +129,7 @@ export function effect(fn, options: any = {}) {
   //  fn
   const _effect = new ReactiveEffect(fn, options.scheduler)
 
+  // 将 options 内的参数挂到 effect 实例上
   extend(_effect, options)
 
   _effect.run()
@@ -140,7 +141,6 @@ export function effect(fn, options: any = {}) {
   runner.effect = _effect
 
   return runner
-
 }
 
 export function stop(runner) {
