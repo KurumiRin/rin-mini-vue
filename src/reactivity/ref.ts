@@ -64,3 +64,24 @@ export function unRef(ref) {
   // 如果是 ref 则返回 ref.value 否则返回本身
   return isRef(ref) ? ref.value : ref
 }
+
+// 在 template 中，我们不需要 .value 来获取 ref 的值，就是利用 proxyRefs 做到的
+export function proxyRefs(objectWithRefs) {
+  return new Proxy(objectWithRefs, {
+    get(target, key) {
+      // get -> 如果访问一个属性，他是 ref，那就给他返回 .value,
+      // 如果不是 ref,则返回本身
+      return unRef(Reflect.get(target, key))
+    }
+    set(target, key, newValue) {
+      // set -> 如果修改的是 ref,且不是修改为 ref，则赋值给他的 .value
+      if (isRef(target[key]) && !isRef(newValue)) {
+        return target[key].value = newValue
+      } else {
+        // 如果是修改为 ref 类型，则替换掉
+        return Reflect.set(target, key, newValue)
+      }
+    }
+  })
+
+}
